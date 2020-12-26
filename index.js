@@ -1,14 +1,20 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const chalk = require('chalk');
+var bodyParser = require('body-parser')
 
 const config = require('./config');
+const books = require('./routes/books');
 const Book = require('./models/Book');
-
 const log = console.log;
 
 const app = express();
 
+app.use(bodyParser.json());// Very careful with what it is set to. Causes issues
+
+app.listen(config.PORT, () =>{
+    log(chalk.cyan(`[SERVER listening at PORT: ${config.PORT}]`));
+    });
 
 //mongoose connection to ATLAS DB
 
@@ -30,25 +36,39 @@ client.on('error', console.error.bind(console, 'connection error'));
 client.once('open', () =>{
     // create Schema to perform CRUD operations
     log(chalk.green(`[CONNECTED to MongoDB... ]`));
-    const book = new Book(
-        {isbn: 9781593275846,
-        title: "Eloquent JavaScript, Second Edition",
-        subtitle: "A Modern Introduction to Programming",
-        author: "Marijn Haverbeke",
-        publisher: "No Starch Press",
-        pages: 472,
-    });
-    book.save((err)=>{
-        if (err){
-            log(`[ERROR in updating db]`);
-        };
-    });
+
+
+    /////////////////////
+    //Use script to add books manually
+    // const book1 = new Book({
+        // "isbn": 9781593275846,
+        // "title": "Eloquent JavaScript, Second Edition",
+        // "subtitle": "A Modern Introduction to Programming",
+        // "author": "Marijn Haverbeke",
+        // "publisher": "No Starch Press",
+        // "pages": 472
+    // });
+        // const book2 = new Book({
+        // "isbn": 9781449331818,
+        // "title": "Learning JavaScript Design Patterns",
+        // "subtitle": "A JavaScript and jQuery Developer's Guide",
+        // "author": "Addy Osmani",
+        // "publisher": "O'Reilly Media",
+        // "pages": 254
+    // });
+    // book1.save((err)=>{
+    //     if (err){
+    //         log(chalk.red(`[Error] could not create document: ${err}`));
+    //     };
+    //     log(chalk.green(`[SUCCESS]: created a document successfullty!`));
+    // });
+
+    ////////////////////////////
+    books(app);
 });
 
 
 
-app.listen(config.PORT, () =>{
-log(chalk.cyan(`[SERVER listening at PORT: ${config.PORT}]`));
-});
+
 
 
